@@ -25,7 +25,7 @@ class Imagen:
 
     def drawImagenConSalida(self, salida):
         for s in salida:
-            if s.probabilidad <= 1 and True:
+            if s.probabilidad <= 1 and False:
                 self._draw.rectangle((
                     s.minX, s.minY,
                     s.maxX, s.maxY,
