@@ -24,20 +24,19 @@ class Imagen:
 
 
     def drawImagenConSalida(self, salida):
-        for s in salida[0]:
-            print(s['probabilidad'])
-            if s['probabilidad'] <= 1 and True:
+        for s in salida:
+            if s.probabilidad <= 1 and True:
                 self._draw.rectangle((
-                    s['minX'], s['minY'],
-                    s['maxX'], s['maxY'],
+                    s.minX, s.minY,
+                    s.maxX, s.maxY,
                 ),0)
             else:
                 self._draw.line((
-                    s['minX'], s['minY'],
-                    s['minX'], s['maxY'],
-                    s['maxX'], s['maxY'],
-                    s['maxX'], s['minY'],
-                    s['minX'], s['minY']
+                    s.minX, s.minY,
+                    s.minX, s.maxY,
+                    s.maxX, s.maxY,
+                    s.maxX, s.minY,
+                    s.minX, s.minY
                     ), 0)
         self._IMAGEN.show()
 
