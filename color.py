@@ -1,10 +1,8 @@
+#!encoding=utf-8
 import colorsys
 
 
 class Color:
-    qPoints = 0
-    puntos = []
-    probability = 0
 
     @staticmethod
     def rgb_to_hls(r, g, b):
@@ -12,27 +10,51 @@ class Color:
         h, l, s = colorsys.rgb_to_hls(r, g, b)
         return (h, l, s)
 
+    @staticmethod
+    def hls_to_rgb(h, l, s):
+        r, g, b = colorsys.hls_to_rgb(h, l, s)
+        return (r * 255, g * 255, b * 255)
+
+    @staticmethod
+    def getDifference(colorDict):
+        totalDif = 0
+
+        for key, value in colorDict.items():
+            totalDif += abs(value[2] - value[1])
+
+        return totalDif
+
     def __init__(self, minH, maxH, minL, maxL):
         self.minH = minH
         self.maxH = maxH
         self.minL = minL
         self.maxL = maxL
+        # self.puntos = []
+        self.qPoints = 0
+        self.probability = 0
+        self.squareCount = 0
+        self.geneticPercentage = 0
 
-    def matches(self, hslColor):
-        return hslColor[0] >= self.minH and hslColor[0] <= self.maxH and hslColor[1] >= self.minL and hslColor[1] <= self.maxL
+    def matches(self, hlsColor):
+        return hlsColor[0] >= self.minH and hlsColor[0] <= self.maxH and hlsColor[1] >= self.minL and hlsColor[1] <= self.maxL
 
-    def incrementCount(self, punto):
-        self.puntos.append(punto)
+    def incrementCount(self):
         self.qPoints += 1
 
     def setProbability(self, prob):
         self.probability = prob
 
+    def increaseSquareCount(self, squareSize):
+        self.squareCount += squareSize
+
+    def decreaseSquareCount(self, squareSize):
+        self.squareCount -= squareSize
+
 
 def getColores():
     return {
-        "white": Color(0, 1, 0, 0.11),
-        "black": Color(0, 1, 0.95, 1),
+        "black": Color(0, 1, 0, 0.11),
+        "white": Color(0, 1, 0.95, 1),
         "red": Color(0, 0.07, 0, 1),
         "orange": Color(0.07, 0.14, 0, 1),
         "yellow": Color(0.14, 0.18, 0, 1),

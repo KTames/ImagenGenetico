@@ -1,9 +1,10 @@
+#!encoding=utf-8
 import random
 import imagen
 from collections import defaultdict
 import colorsys
 import imageio
-# import matplotlib.pyplot as plt
+from multiprocessing import Pool
 from sector import Sector
 
 
@@ -47,6 +48,7 @@ class Probabilista:
         return indiceSector
 
     def elegirSamples(self):
+        
         # Se va a tomar un 7% de los puntos como sample
         cantSamples = int(self._imagen.alto * self._imagen.ancho * 0.05)
         # Aloja la sumatoria de las probabilidades de cada sector
@@ -75,45 +77,10 @@ class Probabilista:
                     cantElementosProbabilidad += 0.05
                 # endif
                 sectores[indiceSector].points.append(point)
-
+        
+        # pool = Pool(processes=2)
+        # tasks = [pool.apply(sector.calculateColors) for sector in sectores]
         for sector in sectores:
-            sector.calculateColors()
+            sector.calculateColors() 
+
         return sectores
-
-    # def getColores(self, pixeles):
-    #     self.pixeles = elegirSamples.puntosElegidos
-    #     pix = pixeles.getdata()
-
-    #     for pixel in pixeles:
-    #         _colorsRGB[pixel] += 1
-
-    #     return _colorsRGB
-
-    # def convertRGBinHSL(self, colors, nColors):
-    #     self.colors = getColores(self, pixeles)
-    #     self.nColors = _colorsHLS
-
-    #     for val in colors.items():
-    #         c = colorsys.rgb_to_hls(val)
-    #         if c < 25.0 or c[0] > 335.0 and c[0] < 360.0:
-    #             nColors["Rojo"] = c
-    #         elif c[0] < 50.0:
-    #             nColors["Naranja"] = c
-    #         elif c[0] < 65.0:
-    #             nColors["Amarillo"] = c
-    #         elif c[0] < 160.0:
-    #             nColors["Verde"] = c
-    #         elif c[0] < 190.0:
-    #             nColors["Celeste"] = c
-    #         elif c[0] < 265.0:
-    #             nColors["Azul"] = c
-    #         elif c[0] < 285.0:
-    #             nColors["Morado"] = c
-    #         elif c[0] < 335.0:
-    #             nColors["Rosado"] = c
-    #         elif c[1] < 11.0:
-    #             nColors["Negro"] = c
-    #         elif c[1] > 95:
-    #             nColors["Blanco"] = c
-
-    #     return nColors
