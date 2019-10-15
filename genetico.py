@@ -5,7 +5,6 @@ class Genetico:
 
     def __init__(self, sectors):
         self.sectors = sectors
-        self.cantGeneraciones = 0
         self.htmlOutput = HtmlOutput()
 
     def calculateGeneration(self, sector):
@@ -23,13 +22,27 @@ class Genetico:
             average += fitness / length
 
         elegibles = []
-
-        for squareWithFitness in squaresWithFitness:
+        squaresToErase = []
+        for index in range(0, len(squaresWithFitness)):
+            squareWithFitness = squaresWithFitness[index]
             if squareWithFitness[1] >= average:
+                squaresToErase.append(index)
                 elegibles.append(squareWithFitness)
 
         if len(elegibles) < 2:
-            raise AssertionError("No suitable parents found")
+            for index in range(len(squaresToErase) - 1, -1, -1):
+                squaresWithFitness.pop(squaresToErase[index])
+
+            if len(squaresWithFitness) < 1:
+                raise AssertionError("No suitable parents found")
+
+            squaresWithFitness.sort(key=lambda squareWithFitness: squareWithFitness[1])
+
+            elegibles.append(squaresWithFitness[0])
+            print ("Casi se cae esta mierda jaja. Nuevo len:", len(elegibles))
+
+        for key, color in sector.getColorDistribution().items():
+                color.resetSquareCount()
 
         elegibles.sort(key=lambda squareWithFitness: squareWithFitness[1])
 
@@ -46,7 +59,7 @@ class Genetico:
             elegibles.pop(randomIndex)
 
 
-            childrenCount = random.randint(2, 6 if newArea < sectorArea * 1.5 else 2)
+            childrenCount = random.randint(2, 6 if newArea < sectorArea * 5 else 2)
 
             for childrenIndex in range(0, childrenCount):
                 child = firstParent[0].reproduceWith(randomParent[0])
@@ -58,26 +71,26 @@ class Genetico:
 
                 sector.addToLastGeneration(child)
                 newArea += child.size
+        sector.calculateColorPercentages()
         
 
     def run(self):
-        for generationIndex in range(0, 101):
+        for generationIndex in range(0, 10):
 
-            self.htmlOutput.newGeneration()
+            if generationIndex % 1 == 0:
+                self.htmlOutput.newGeneration()
+
 
             # pool = Pool()
             # pool.map(self.calculateGeneration, (sector for sector in self.sectors))
-            # pool.close()
+            # pool.terminate()
 
             for sector in self.sectors:
                 self.calculateGeneration(sector)
 
-            if generationIndex % 10 == 0:
+            if generationIndex % 1 == 0:
                 for sector in self.sectors:
                     self.htmlOutput.addInGeneration(sector.getLastGeneration(), sector)
-
-            self.cantGeneraciones += 1
-            self.htmlOutput.endGeneration()
-
+                self.htmlOutput.endGeneration()
 
         self.htmlOutput.write()

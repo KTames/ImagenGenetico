@@ -85,6 +85,9 @@ class Sector:
         for key, color in self._colors.items():
             total += color.squareCount
 
+        if total == 0:
+            print("Wowo")
+
         for key, color in self._colors.items():
             color.geneticPercentage = color.squareCount / total
 

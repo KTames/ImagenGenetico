@@ -11,8 +11,8 @@ import os
 if __name__ == "__main__":
     freeze_support()
     set_start_method('spawn')
-    columnas = 40
-    filas = 40
+    columnas = 20
+    filas = 20
     imagen = Imagen("imgs/imagen.jpg")
     probabilista = Probabilista(imagen, filas, columnas)
     sectores = probabilista.elegirSamples()

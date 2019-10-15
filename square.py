@@ -73,9 +73,10 @@ class Square:
         anR = int(anR)
         anG = int(anG)
         anB = int(anB)
+
         r |= anR & 2**pivotR
-        g |= anG & 2**pivotR
-        b |= anB & 2**pivotR
+        g |= anG & 2**pivotG
+        b |= anB & 2**pivotB
 
         hlsColor = Color.rgb_to_hls(r, g, b)
         
@@ -85,7 +86,51 @@ class Square:
                 selectedKey = key
                 break
         
-        return Square((r, g, b), hlsColor, selectedKey, self.size / 2 if self.size > 4 else self.size)
+        return Square((r, g, b), hlsColor, selectedKey, self.size * 0.8 if self.size > 1 else self.size)
+    
+    def reproduceWithHLS(self, anotherParent):
+        h, s, l = self.hlsColor
+        anH, anS, anL = anotherParent.hlsColor
+
+        h = int(h * 100)
+        s = int(s * 100)
+        l = int(l * 100)
+
+        anH = int(anH * 100)
+        anS = int(anS * 100)
+        anL = int(anL * 100)
+
+
+        # Se hace de 0 a 5 para dejar al menos dos bits del primer padre
+        pivotH = random.randint(0,4)
+        pivotS = random.randint(0,4)
+        pivotL = random.randint(0,4)
+
+        # Se dejan sólo los bits altos del primer padre
+        h &= 127 - 2**(pivotH + 1) + 1
+        s &= 127 - 2**(pivotS + 1) + 1
+        l &= 127 - 2**(pivotL + 1) + 1
+
+        h |= anH & 2**pivotH
+        s |= anS & 2**pivotS
+        l |= anL & 2**pivotL
+
+        h = h if h <= 100 else 100
+        s = s if s <= 100 else 100
+        l = l if l <= 100 else 100
+        h /= 100
+        s /= 100
+        l /= 100
+
+        rgbColor = Color.hls_to_rgb(h, s, l)
+
+        selectedKey = ""
+        for key, color in self.colorDistribution.items():
+            if color.matches((h, l, s)):
+                selectedKey = key
+                break
+        
+        return Square(rgbColor, (h, l, s), selectedKey, self.size * 0.8 if self.size > 1 else self.size)
 
 
     def getFitness(self):
@@ -107,14 +152,18 @@ class Square:
         colorDict = dict(zip(keys, values))
         
         previousDif = Color.getDifference(colorDict)
+        # previousDif = abs(colorDict[self.colorType][1] - colorDict[self.colorType][2])
 
         colorDict[self.colorType][0] -= self.size
         total -= self.size
 
-        for value in values:
-            value.append(value[0] / total)
+        for key, color in colorDict.items():
+            color[2] = color[0] / total
+        # for value in values:
+        #     value.append(value[0] / total)
 
         newDif = Color.getDifference(colorDict)
+        # newDif = abs(colorDict[self.colorType][1] - colorDict[self.colorType][2])
 
 
         return newDif - previousDif

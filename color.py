@@ -50,6 +50,9 @@ class Color:
     def decreaseSquareCount(self, squareSize):
         self.squareCount -= squareSize
 
+    def resetSquareCount(self):
+        self.squareCount = 0
+
 
 def getColores():
     return {
