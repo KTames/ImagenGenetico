@@ -26,6 +26,7 @@ class Color:
         self.geneticPercentage = 0
         self.minBit = -1
         self.maxBit = -1
+        self.target = 0
 
     def matches(self, hlsColor):
         return hlsColor[0] >= self.minH and hlsColor[0] <= self.maxH and hlsColor[1] >= self.minL and hlsColor[1] <= self.maxL
@@ -38,10 +39,12 @@ class Color:
 
     def setBitBounds(self, min, max):
         self.minBit = min
+        self.target = int(min + max / 2)
         self.maxBit = max
     
     def setMaxBound(self, max):
         self.maxBit = max
+        self.target = int(self.minBit + max / 2)
 
     def matchesGenes(self, genes):
         return genes <= self.maxBit and genes >= self.minBit

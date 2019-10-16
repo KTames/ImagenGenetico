@@ -20,12 +20,13 @@ class Genetico:
         length = len(lastGeneration)
 
         for square in lastGeneration:
-            fitness = square.getFitness()
+            fitness = sector.getFitness(square)
             squaresWithFitness.append([square, fitness])
             average += fitness / length
 
         elegibles = []
         squaresToErase = []
+
         for index in range(0, len(squaresWithFitness)):
             squareWithFitness = squaresWithFitness[index]
             if squareWithFitness[1] >= average:

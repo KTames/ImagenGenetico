@@ -13,13 +13,17 @@ class Genetic:
 
     def calculateNextGeneration(self, sector):
         lastGeneration = sector.getLastGeneration()
+
         sector.nextGeneration()
 
         squaresWithFitness = []
+        average = 0
+        length = len(lastGeneration)
         
         for square in lastGeneration:
-            if sector.getFitness(square):
-                squaresWithFitness.append(square)
+            fitness = sector.getFitness(square)
+            squaresWithFitness.append([square, fitness])
+            average += fitness / length
         
         colorDict = sector.getColorDistribution()
         
