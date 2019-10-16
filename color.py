@@ -57,7 +57,7 @@ class Color:
 def getColores():
     return {
         "black": Color(0, 1, 0, 0.11),
-        "white": Color(0, 1, 0.95, 1),
+        "white": Color(0, 1, 0.97, 1),
         "red": Color(0, 0.07, 0, 1),
         "orange": Color(0.07, 0.14, 0, 1),
         "yellow": Color(0.14, 0.18, 0, 1),

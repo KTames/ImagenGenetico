@@ -151,8 +151,8 @@ class Square:
 
         colorDict = dict(zip(keys, values))
         
-        previousDif = Color.getDifference(colorDict)
-        # previousDif = abs(colorDict[self.colorType][1] - colorDict[self.colorType][2])
+        # previousDif = Color.getDifference(colorDict)
+        previousDif = abs(colorDict[self.colorType][1] - colorDict[self.colorType][2])
 
         colorDict[self.colorType][0] -= self.size
         total -= self.size
@@ -162,8 +162,8 @@ class Square:
         # for value in values:
         #     value.append(value[0] / total)
 
-        newDif = Color.getDifference(colorDict)
-        # newDif = abs(colorDict[self.colorType][1] - colorDict[self.colorType][2])
+        # newDif = Color.getDifference(colorDict)
+        newDif = abs(colorDict[self.colorType][1] - colorDict[self.colorType][2])
 
 
         return newDif - previousDif

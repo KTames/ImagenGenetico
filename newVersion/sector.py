@@ -1,5 +1,5 @@
 #!encoding=utf-8
-from color import Color, getColores
+from color import Color, getColors
 import random
 from square import Square
 
@@ -14,9 +14,10 @@ class Sector:
         self.maxY = maxY
         self.probability = 1
         self.points = []
-        self._colors = getColores()
+        self._colors = getColors()
         self.generations = [[]]
         self.size = maxX - minX
+        self.squareSize = self.size / 2
 
     def getColors(self):
         return self._colors
@@ -52,50 +53,42 @@ class Sector:
 
             for key, color in self._colors.items():
                 self._colors[key].setProbability(color.qPoints / qcolors)
-
+        
         actualBitPosition = 0
+        lastKey = ""
         for key, color in self._colors.items():
-            lowBound = actualBitPosition
-            highBound = (2**16) * color.probability + lowBound
-            color.setBitBounds(int(lowBound), int(highBound))
-            actualBitPosition = int(highBound)
+            if color.probability > 0:
+                lastKey = key
+                lowBound = actualBitPosition
+                highBound = (2**16) * color.probability + lowBound
+                color.setBitBounds(int(lowBound), int(highBound))
+                actualBitPosition = int(highBound)
+        
+        self._colors[lastKey].setMaxBound(2 ** 16 - 1)
         self._createFirstGeneration()
 
-    def _createFirstGeneration(self):
-        # Se crean 3 cuadrados iniciales. Esto para que queden 2 padres elegibles y 1 no elegible.
-        # Si hubieran sólo 2 cuadrados iniciales, quedaría 1 no elegible y sólo 1 elegible, lo cual no puede pasar
-        for index in range(0, 3):
-            rand = random.randint(1, 100) / 100
 
-            selectedColor = None
-            selectedKey = ""
+    def _createFirstGeneration(self):
+        for index in range(0, 3):
+            genes = random.randint(0, 2**16 - 1)
+
             for key, color in self._colors.items():
-                selectedColor = color
-                selectedKey = key
-                rand -= color.probability
-                if rand <= 0:
+                if color.matchesGenes(genes):
+                    color.increaseSquareCount()
                     break
 
-            h = random.randint(int(selectedColor.minH * 100), int(selectedColor.maxH * 100)) / 100
-            l = random.randint(int(selectedColor.minL * 100), int(selectedColor.maxL * 100)) / 100
-            s = random.randint(25, 75) / 100
-
-            r, g, b = Color.hls_to_rgb(h, l, s)
-
-            self.generations[0].append(Square((r, g, b), (h, s, l), selectedKey, self.size / 2, self._colors))
-
+            self.generations[0].append(Square(genes, self.squareSize))
         self.calculateColorPercentages()
 
     def calculateColorPercentages(self):
         total = 0
         for key, color in self._colors.items():
             total += color.squareCount
-
         for key, color in self._colors.items():
             color.geneticPercentage = color.squareCount / total
 
     def getLastGeneration(self):
-        return self.generations[-1:][0]
+        return self.generations[len(self.generations) - 1]
 
     def getColorDistribution(self):
         return self._colors
@@ -105,4 +98,7 @@ class Sector:
 
     def addToLastGeneration(self, square):
         self.generations[len(self.generations) - 1].append(square)
+
+    def getFitness(self, square):
+        return True
         

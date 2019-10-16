@@ -13,7 +13,7 @@ if __name__ == "__main__":
     set_start_method('spawn')
     columnas = 20
     filas = 20
-    imagen = Imagen("imgs/imagen.jpg")
+    imagen = Imagen("imgs/guacamaya.jpg")
     probabilista = Probabilista(imagen, filas, columnas)
     sectores = probabilista.elegirSamples()
 

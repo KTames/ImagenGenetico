@@ -1,13 +1,16 @@
 from htmloutput import HtmlOutput
-from multiprocessing import set_start_method, freeze_support, Pool
+from multiprocessing import set_start_method, freeze_support, Pool, Queue, Process
 import random
+
+print_delay = 2
+
 class Genetico:
 
     def __init__(self, sectors):
         self.sectors = sectors
         self.htmlOutput = HtmlOutput()
 
-    def calculateGeneration(self, sector):
+    def calculateGeneration(self, sector): #queue
         lastGeneration = sector.getLastGeneration()
 
         sector.nextGeneration()
@@ -28,21 +31,24 @@ class Genetico:
             if squareWithFitness[1] >= average:
                 squaresToErase.append(index)
                 elegibles.append(squareWithFitness)
+                # sector.addToLastGeneration(squareWithFitness[0])
 
         if len(elegibles) < 2:
             for index in range(len(squaresToErase) - 1, -1, -1):
                 squaresWithFitness.pop(squaresToErase[index])
 
-            if len(squaresWithFitness) < 1:
-                raise AssertionError("No suitable parents found")
+            squaresWithFitness.sort(
+                key=lambda squareWithFitness: squareWithFitness[1])
 
-            squaresWithFitness.sort(key=lambda squareWithFitness: squareWithFitness[1])
-
-            elegibles.append(squaresWithFitness[0])
-            print ("Casi se cae esta mierda jaja. Nuevo len:", len(elegibles))
-
+            while len(elegibles) < 2:
+                if len(squaresWithFitness) < 1:
+                    raise AssertionError("No suitable parents found")
+                elegibles.append(squaresWithFitness[0])
+                squaresWithFitness.pop(0)
+        
+        childrenSize = colorDict
         for key, color in sector.getColorDistribution().items():
-                color.resetSquareCount()
+            color.resetSquareCount()
 
         elegibles.sort(key=lambda squareWithFitness: squareWithFitness[1])
 
@@ -58,8 +64,7 @@ class Genetico:
             randomParent = elegibles[randomIndex]
             elegibles.pop(randomIndex)
 
-
-            childrenCount = random.randint(2, 6 if newArea < sectorArea * 5 else 2)
+            childrenCount = random.randint(4, 8) if newArea < sectorArea * 2.5 else 2
 
             for childrenIndex in range(0, childrenCount):
                 child = firstParent[0].reproduceWith(randomParent[0])
@@ -72,25 +77,43 @@ class Genetico:
                 sector.addToLastGeneration(child)
                 newArea += child.size
         sector.calculateColorPercentages()
-        
+        # queue.put(sector)
+        return sector
 
-    def run(self):
+    def run(self):  
+        q = Queue()
+
         for generationIndex in range(0, 10):
 
-            if generationIndex % 1 == 0:
+            if generationIndex % print_delay == 0:
                 self.htmlOutput.newGeneration()
 
+            # tasks = []
+            # for sector in self.sectors:
+            #     p = Process(target=self.calculateGeneration, args=(sector, q))
+            #     tasks.append(p)
+            #     p.start()
+
+            # for task in tasks:
+            #     task.join()
+
+            
 
             # pool = Pool()
-            # pool.map(self.calculateGeneration, (sector for sector in self.sectors))
+            # pool.map(self.calculateGeneration, ((sector, q) for sector in self.sectors))
             # pool.terminate()
+
+            # self.sectors = []
+            # while not q.empty():
+            #     self.sectors.append(q.get())
 
             for sector in self.sectors:
                 self.calculateGeneration(sector)
 
-            if generationIndex % 1 == 0:
+            if generationIndex % print_delay == 0:
                 for sector in self.sectors:
-                    self.htmlOutput.addInGeneration(sector.getLastGeneration(), sector)
+                    self.htmlOutput.addInGeneration(
+                        sector.getLastGeneration(), sector)
                 self.htmlOutput.endGeneration()
 
         self.htmlOutput.write()
