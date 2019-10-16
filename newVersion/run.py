@@ -2,15 +2,13 @@ from probabilistic import Probabilistic
 from image import ImageData
 from genetic import Genetic
 
-rows = 4
-columns = 4
+if __name__ == "__main__":
+    rows = 4
+    columns = 4
 
-image = ImageData("imgs/guacamaya.jpg")
-image2 = ImageData("imgs/Beach.jpg")
-image3 = ImageData("imgs/imagen.jpg")
+    images = [ImageData("imgs/guacamaya.jpg"), ImageData("imgs/Beach.jpg"), ImageData("imgs/imagen.jpg")]
+    probabilistic = Probabilistic(images, rows, columns)
+    sectors = probabilistic.chooseSamples()
 
-probabilistic = Probabilistic([image, image2, image3], rows, columns)
-sectors = probabilistic.chooseSamples()
-
-genetic = Genetic(sectors)
-genetic.run()
+    genetic = Genetic(sectors, len(images))
+    genetic.run()

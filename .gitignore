@@ -8,3 +8,7 @@ imgs/.DS_Store
 .vscode/
 
 output/
+
+newVersion/.idea/inspectionProfiles/
+
+newVersion/.idea/

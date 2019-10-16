@@ -3,6 +3,7 @@ from color import Color, getColors
 import random
 from square import Square
 
+
 class Sector:
 
     def __init__(self, logicX, logicY, minX, minY, maxX, maxY):
@@ -30,10 +31,12 @@ class Sector:
         colorsTemp = [getColors() for _ in range(0, len(self.points))]
 
         for imageIndex in range(0, len(self.points)):
+
             countPoints = len(self.points[imageIndex])
-            
+
             if countPoints == 0:
                 self._colors["white"].setProbability(1)
+
             else:
                 qcolors = 0
                 pointsToEvaluate = int(
@@ -57,14 +60,7 @@ class Sector:
                 for key, color in colorsTemp[imageIndex].items():
                     color.setProbability(color.qPoints / qcolors)
 
-                highest = 0
-                highestKey = ""
-                
-                for key, color in colorsTemp[imageIndex].items():
-                    if color.probability > highest:
-                        highestKey = key
-
-                self.targetsPerImage.append(highestKey)
+                self.targetsPerImage = colorsTemp
 
         actualBitPosition = 0
         lastKey = ""
@@ -77,12 +73,12 @@ class Sector:
 
             if totalsum > 0:
                 lastKey = key
-                
+
                 lowBound = actualBitPosition
                 highBound = (2**16) * (totalsum / imageCount) + lowBound
                 color.setBitBounds(int(lowBound), int(highBound))
                 actualBitPosition = int(highBound)
-        
+
         self._colors[lastKey].setMaxBound(2 ** 16 - 1)
         self._createFirstGeneration()
 
@@ -126,4 +122,3 @@ class Sector:
                 break
 
         return abs(genes - target) / target
-        

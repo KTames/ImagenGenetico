@@ -7,9 +7,10 @@ mutate_probability = 5
 
 class Genetic:
 
-    def __init__(self, sectors):
+    def __init__(self, sectors, imageCount):
         self._sectors = sectors
         self._htmlOutput = HtmlOutput()
+        self._imageCount = imageCount
 
     def calculateNextGeneration(self, sector):
         lastGeneration = sector.getLastGeneration()
@@ -19,7 +20,7 @@ class Genetic:
         squaresWithFitness = []
         average = 0
         length = len(lastGeneration)
-        
+
         for square in lastGeneration:
             fitness = sector.getFitness(square)
             squaresWithFitness.append([square, fitness])
