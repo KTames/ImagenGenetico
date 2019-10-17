@@ -1,8 +1,5 @@
 #!encoding=utf-8
 import random
-from collections import defaultdict
-import colorsys
-from multiprocessing import Pool
 from sector import Sector
 
 
@@ -13,74 +10,78 @@ class Probabilistic:
         self._rows = rows
         self._columns = columns
 
-    def _createSectors(self):
-        widthPerSector = self._images[0].width / self._columns
-        heightPerSector = self._images[0].height / self._rows
+    def _create_sectors(self):
 
-        # Calcula los X y Y de cada sector y le pone una probabilidad por defecto
+        width_per_sector = self._images[0].width / self._columns
+        height_per_sector = self._images[0].height / self._rows
+
+        # Calcula los X y Y de cada sector
         sectors = [
             Sector(
                 column,
                 row,
-                int(widthPerSector * column),
-                int(heightPerSector * row),
-                int(widthPerSector * (column + 1)),
-                int(heightPerSector * (row + 1))
+                int(width_per_sector * column),
+                int(height_per_sector * row),
+                int(width_per_sector * (column + 1)),
+                int(height_per_sector * (row + 1))
             ) for row in range(0, self._rows)
             for column in range(0, self._columns)
         ]
 
         return sectors
 
-    def _chooseSector(self, sectors, probabilisticIndex):
-        indexSector = -1
+    @staticmethod
+    def _choose_sector(sectors, probabilistic_index):
+        index_sector = -1
         length = len(sectors)
-        while probabilisticIndex >= 0 and indexSector + 1 < length:
-            indexSector += 1
-            probabilisticIndex -= sectors[indexSector].probability
-        return indexSector
+        while probabilistic_index >= 0 and index_sector + 1 < length:
+            index_sector += 1
+            probabilistic_index -= sectors[index_sector].probability
+        return index_sector
 
-    def chooseSamples(self):
-        imageIndex = 0
-        sectors = self._createSectors()
-        cantProbabilityElements = self._rows * self._columns * 10
+    def choose_samples(self):
+        image_index = 0
+        sectors = self._create_sectors()
+        cant_probability_elements = self._rows * self._columns * 10
 
         for image in self._images:
 
             for sector in sectors:
                 sector.points.append([])
+
             # Se va a tomar un 7% de los puntos como sample
-            cantSamples = int(image.height * image.width * 0.05)
+            cant_samples = int(image.height * image.width * 0.07)
+
             # Aloja la sumatoria de las probabilidades de cada sector
-            for count in range(0, cantSamples):
+            for count in range(0, cant_samples):
+
                 # Elige un sector, es aquí donde entra la probabilidad
-                randomIndex = random.random() * cantProbabilityElements
-                sectorIndex = self._chooseSector(sectors, randomIndex)
-                choosenSector = sectors[sectorIndex]
+                random_index = random.random() * cant_probability_elements
+                sector_index = self._choose_sector(sectors, random_index)
+                choosen_sector = sectors[sector_index]
 
-                coordXrandom = random.randint(
-                    choosenSector.minX, choosenSector.maxX - 1)
-                coordYrandom = random.randint(
-                    choosenSector.minY, choosenSector.maxY - 1)
+                coord_x_random = random.randint(
+                    choosen_sector.min_x, choosen_sector.max_x - 1)
+                coord_y_random = random.randint(
+                    choosen_sector.min_y, choosen_sector.max_y - 1)
 
-                point = image.getPoint(coordXrandom, coordYrandom)
+                point = image.get_point(coord_x_random, coord_y_random)
 
-                # self._imagen.dibujarPunto((coordXrandom, coordYrandom), (0, 255, 0))
-                if not (point[0] > 230 and point[1] > 230 and point[2] > 230):
-                    if sectors[sectorIndex].probability < 100:
+                if not (point[0] > 230 and point[1] > 230 and point[2] > 230):  # Si el punto no es blanco
+                    if sectors[sector_index].probability < 100:
 
-                        sectors[sectorIndex].probability += 0.05
-                        cantProbabilityElements += 0.05
-                        
-                    elif sectors[sectorIndex].probability > 2:
+                        sectors[sector_index].probability += 0.05
+                        cant_probability_elements += 0.05
 
-                        sectors[sectorIndex].probability -= 0.05
-                        cantProbabilityElements -= 0.05
+                    elif sectors[sector_index].probability > 2:  # Si el punto sí es blanco
 
-                sectors[sectorIndex].points[imageIndex].append(point)
-            imageIndex += 1
-            
+                        sectors[sector_index].probability -= 0.05
+                        cant_probability_elements -= 0.05
+
+                sectors[sector_index].points[image_index].append(point)
+            image_index += 1
+
         for sector in sectors:
-            sector.calculateColors()
+            sector.calculate_colors()
 
         return sectors

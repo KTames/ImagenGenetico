@@ -1,67 +1,68 @@
 #!encoding=utf-8
 import colorsys
 
+
 class Color:
 
     @staticmethod
     def rgb_to_hls(r, g, b):
-        r, g, b = [x/255.0 for x in [r, g, b]]
+        r, g, b = [x / 255.0 for x in [r, g, b]]
         h, l, s = colorsys.rgb_to_hls(r, g, b)
-        return (h, l, s)
+        return h, l, s
 
     @staticmethod
     def hls_to_rgb(h, l, s):
         r, g, b = colorsys.hls_to_rgb(h, l, s)
-        return (r * 255, g * 255, b * 255)
+        return r * 255, g * 255, b * 255
 
-    def __init__(self, minH, maxH, minL, maxL, rgbColor):
-        self.rgbColor = rgbColor
-        self.minH = minH
-        self.maxH = maxH
-        self.minL = minL
-        self.maxL = maxL
-        self.qPoints = 0
+    def __init__(self, min_h, max_h, min_l, max_l, rgb_color):
+        self.rgb_color = rgb_color
+        self.min_h = min_h
+        self.max_h = max_h
+        self.min_l = min_l
+        self.max_l = max_l
+        self.cant_points = 0
         self.probability = 0
-        self.squareCount = 0
-        self.geneticPercentage = 0
-        self.minBit = -1
-        self.maxBit = -1
+        self.square_count = 0
+        self.genetic_percentage = 0
+        self.min_bit = -1
+        self.max_bit = -1
         self.target = 0
 
-    def matches(self, hlsColor):
-        return hlsColor[0] >= self.minH and hlsColor[0] <= self.maxH and hlsColor[1] >= self.minL and hlsColor[1] <= self.maxL
+    def matches(self, hls_color):
+        return self.min_h <= hls_color[0] <= self.max_h and hls_color[1] >= self.min_l and hls_color[
+            1] <= self.max_l
 
-    def incrementCount(self):
-        self.qPoints += 1
+    def increment_count(self):
+        self.cant_points += 1
 
-    def setProbability(self, prob):
+    def set_probability(self, prob):
         self.probability = prob
 
-    def setBitBounds(self, min, max):
-        self.minBit = min
-        self.target = int(min + max / 2)
-        self.maxBit = max
-    
-    def setMaxBound(self, max):
-        self.maxBit = max
-        self.target = int(self.minBit + max / 2)
+    def set_bit_bounds(self, minimum, maximum):
+        self.min_bit = minimum
+        self.target = int(minimum + maximum / 2)
+        self.max_bit = maximum
 
-    def matchesGenes(self, genes):
-        return genes <= self.maxBit and genes >= self.minBit
-        
+    def set_max_bound(self, maximum):
+        self.max_bit = maximum
+        self.target = int(self.min_bit + maximum / 2)
 
-    def increaseSquareCount(self):
-        self.squareCount += 1
+    def matches_genes(self, genes):
+        return self.max_bit >= genes >= self.min_bit
 
-    def decreaseSquareCount(self):
-        self.squareCount -= 1
+    def increase_square_count(self):
+        self.square_count += 1
 
-    def resetSquareCount(self):
-        self.squareCount = 0
-        self.geneticPercentage = 0
+    def decrease_square_count(self):
+        self.square_count -= 1
+
+    def reset_square_count(self):
+        self.square_count = 0
+        self.genetic_percentage = 0
 
 
-def getColors():
+def get_colors():
     return {
         "black": Color(0, 1, 0, 0.11, (0, 0, 0)),
         "white": Color(0, 1, 0.97, 1, (255, 255, 255)),

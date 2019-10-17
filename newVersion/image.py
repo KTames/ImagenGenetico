@@ -1,6 +1,7 @@
 #!encoding=utf-8
 from PIL import Image, ImageDraw, ImageColor
 
+
 class ImageData:
 
     def __init__(self, path):
@@ -18,5 +19,5 @@ class ImageData:
             for coordX in range(0, self._IMAGE.width):
                 self._matrix[coordX][coordY] = mut.__next__()
 
-    def getPoint(self, x, y):
+    def get_point(self, x, y):
         return self._matrix[x][y]

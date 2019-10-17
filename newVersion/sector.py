@@ -1,124 +1,126 @@
 #!encoding=utf-8
-from color import Color, getColors
+from color import Color, get_colors
 import random
 from square import Square
 
 
 class Sector:
 
-    def __init__(self, logicX, logicY, minX, minY, maxX, maxY):
-        self.logicX = logicX
-        self.logicY = logicY
-        self.minX = minX
-        self.maxX = maxX
-        self.minY = minY
-        self.maxY = maxY
+    def __init__(self, logic_x, logic_y, min_x, min_y, max_x, max_y):
+        self.logic_x = logic_x
+        self.logic_y = logic_y
+        self.min_x = min_x
+        self.max_x = max_x
+        self.min_y = min_y
+        self.max_y = max_y
         self.probability = 10
         self.points = []
-        self._colors = getColors()
+        self._colors = get_colors()
         self.generations = [[]]
-        self.size = maxX - minX
-        self.squareSize = self.size / 2
-        self.targetsPerImage = []
+        self.size = max_x - min_x
+        self.square_size = self.size / 2
+        self.targets_per_image = []
 
-    def getColors(self):
+    def get_colors(self):
         return self._colors
 
-    def calculateColors(self):
+    def calculate_colors(self):
         """
             Calcula los porcentajes de color de los puntos que se eligieron en el probabilista
         """
-        colorsTemp = [getColors() for _ in range(0, len(self.points))]
+
+        colors_temp = [get_colors() for _ in range(0, len(self.points))]
 
         for imageIndex in range(0, len(self.points)):
 
-            countPoints = len(self.points[imageIndex])
+            count_points = len(self.points[imageIndex])
 
-            if countPoints == 0:
-                self._colors["white"].setProbability(1)
+            if count_points == 0:
+                self._colors["white"].set_probability(1)
 
             else:
-                qcolors = 0
-                pointsToEvaluate = int(
-                    countPoints * (1. / 3.)
-                ) if countPoints > 500 else countPoints
+                cant_colors = 0
+                points_to_evaluate = int(
+                    count_points * (1. / 3.)
+                ) if count_points > 500 else count_points
 
-                pointsToEvaluate = pointsToEvaluate if pointsToEvaluate < 500 else 500
+                points_to_evaluate = points_to_evaluate if points_to_evaluate < 500 else 500
 
-                for pointIndex in range(0, pointsToEvaluate):
-                    rand = random.randint(0, countPoints - 1)
+                for pointIndex in range(0, points_to_evaluate):
+                    rand = random.randint(0, count_points - 1)
 
                     point = self.points[imageIndex][rand]
                     hls = Color.rgb_to_hls(point[0], point[1], point[2])
 
-                    for key, color in colorsTemp[imageIndex].items():
+                    for key, color in colors_temp[imageIndex].items():
                         if color.matches(hls):
-                            qcolors += 1
-                            color.incrementCount()
+                            cant_colors += 1
+                            color.increment_count()
                             break
 
-                for key, color in colorsTemp[imageIndex].items():
-                    color.setProbability(color.qPoints / qcolors)
+                for key, color in colors_temp[imageIndex].items():
+                    color.set_probability(color.cant_points / cant_colors)
 
-                self.targetsPerImage = colorsTemp
+                self.targets_per_image = colors_temp
 
-        actualBitPosition = 0
-        lastKey = ""
-        imageCount = len(colorsTemp)
+        actual_bit_position = 0
+        last_key = ""
+        image_count = len(colors_temp)
 
         for key, color in self._colors.items():
-            totalsum = 0
-            for index in range(0, imageCount):
-                totalsum += colorsTemp[index][key].probability
+            total_sum = 0
+            for index in range(0, image_count):
+                total_sum += colors_temp[index][key].probability
 
-            if totalsum > 0:
-                lastKey = key
+            if total_sum > 0:
+                last_key = key
+                low_bound = actual_bit_position
+                high_bound = (2 ** 16) * (total_sum / image_count) + low_bound
+                color.set_bit_bounds(int(low_bound), int(high_bound))
+                actual_bit_position = int(high_bound)
 
-                lowBound = actualBitPosition
-                highBound = (2**16) * (totalsum / imageCount) + lowBound
-                color.setBitBounds(int(lowBound), int(highBound))
-                actualBitPosition = int(highBound)
+        self._colors[last_key].set_max_bound(2 ** 16 - 1)
+        self._create_first_generation()
 
-        self._colors[lastKey].setMaxBound(2 ** 16 - 1)
-        self._createFirstGeneration()
-
-    def _createFirstGeneration(self):
+    def _create_first_generation(self):
         for index in range(0, 3):
-            genes = random.randint(0, 2**16 - 1)
+            genes = random.randint(0, 2 ** 16 - 1)
 
             for key, color in self._colors.items():
-                if color.matchesGenes(genes):
-                    color.increaseSquareCount()
+                if color.matches_genes(genes):
+                    color.increase_square_count()
                     break
 
-            self.generations[0].append(Square(genes, self.squareSize))
-        self.calculateColorPercentages()
+            self.generations[0].append(Square(genes))
+        self.calculate_color_percentages()
 
-    def calculateColorPercentages(self):
+    def calculate_color_percentages(self):
         total = 0
         for key, color in self._colors.items():
-            total += color.squareCount
+            total += color.square_count
         for key, color in self._colors.items():
-            color.geneticPercentage = color.squareCount / total
+            color.genetic_percentage = color.square_count / total
 
-    def getLastGeneration(self):
+    def get_last_generation(self):
         return self.generations[len(self.generations) - 1]
 
-    def getColorDistribution(self):
+    def get_color_distribution(self):
         return self._colors
 
-    def nextGeneration(self):
+    def next_generation(self):
         self.generations.append([])
 
-    def addToLastGeneration(self, square):
+    def add_to_last_generation(self, square):
         self.generations[len(self.generations) - 1].append(square)
 
-    def getFitness(self, square):
+    def get_fitness(self, square):
         genes = square.genes
-
-        for key, color in self._colors:
-            if color.matchesGenes(genes):
+        target = 0
+        color_key = ""
+        for key, color in self._colors.items():
+            if color.matches_genes(genes):
                 target = color.target
+                color_key = key
                 break
 
-        return abs(genes - target) / target
+        return (abs(genes - target) / target), color_key

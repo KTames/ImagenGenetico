@@ -5,9 +5,8 @@ import random
 
 class Square:
 
-    def __init__(self, genes, size):
+    def __init__(self, genes):
         self.genes = genes
-        self.size = size
 
     def mutate(self):
         pivot = 2 ** random.randint(0, 15)
@@ -16,11 +15,11 @@ class Square:
             self.genes |= pivot
         else:
             self.genes &= 2 ** 16 - 1 - pivot
-    
-    def reproduceWith(self, anotherParent):
-        pivot = 2 ** random.randint(4, 10)
 
-        newGenes = (pivot - 1) & self.genes
-        newGenes |= ((2**16 - 1) - (pivot - 1)) & anotherParent.genes
+    def reproduce_with(self, another_parent):
+        pivot = 2 ** random.randint(3, 12)
 
-        return Square(newGenes, self.size if self.size > 2 else 2)
+        new_genes = (pivot - 1) & self.genes
+        new_genes |= ((2 ** 16 - 1) - (pivot - 1)) & another_parent.genes
+
+        return Square(new_genes)
